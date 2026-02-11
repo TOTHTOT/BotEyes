@@ -1,0 +1,14 @@
+[package]
+name = "BotEyes"
+version = "0.1.0"
+edition = "2024"
+description = "Rust port of FluxGarage RoboEyes - Draws smoothly animated robot eyes on displays"
+repository = "https://github.com/FluxGarage/RoboEyes"
+
+[lib]
+name = "boteyes"
+path = "src/lib.rs"
+
+[dependencies]
+rand = "0.8"
+image = "0.25"
