@@ -184,7 +184,11 @@ eyes.set_sweat(true);
 eyes.set_autoblinker(true, 3, 2);
 
 // 空闲模式：眼睛随机环顾
-eyes.set_idle_mode(true, 2, 2);
+// 参数：启用, 间隔(秒), 变化(秒), X范围(%), Y范围(%)
+eyes.set_idle_mode(true, 2, 2, 100, 100);
+
+// 只在中间区域环顾（50% 范围）
+eyes.set_idle_mode(true, 2, 4, 50, 50);
 
 // 水平闪烁/晃动
 eyes.set_h_flicker(true, 3);  // 幅度（像素）

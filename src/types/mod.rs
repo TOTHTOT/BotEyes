@@ -91,10 +91,14 @@ impl Default for BlinkConfig {
 /// Controls automatic eye movement when idle:
 /// - `interval`: Base time between eye movements in seconds
 /// - `variation`: Random variation added to interval
+/// - `x_range`: X-axis movement range as percentage of available width (0-100), default 100
+/// - `y_range`: Y-axis movement range as percentage of available height (0-100), default 100
 #[derive(Debug, Clone)]
 pub struct IdleConfig {
     pub interval: u64,
     pub variation: u64,
+    pub x_range: u32,
+    pub y_range: u32,
 }
 
 impl Default for IdleConfig {
@@ -102,6 +106,8 @@ impl Default for IdleConfig {
         Self {
             interval: 1,
             variation: 3,
+            x_range: 100,
+            y_range: 100,
         }
     }
 }

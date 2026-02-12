@@ -16,7 +16,8 @@ fn main() {
     let mut eyes = RoboEyes::new(WIDTH as u32, HEIGHT as u32);
     eyes.set_mood(Mood::Default);
     eyes.open();
-    eyes.set_idle_mode(true, 2, 4);
+    // idle mode: enabled, interval=2s, variation=4s, x_range=100%, y_range=100%
+    eyes.set_idle_mode(true, 2, 4, 50, 50);
 
     let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
 

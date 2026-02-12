@@ -482,10 +482,27 @@ impl RoboEyes {
     }
 
     /// Enable or disable idle mode
-    pub fn set_idle_mode(&mut self, enabled: bool, interval: u64, variation: u64) {
+    ///
+    /// # Arguments
+    ///
+    /// * `enabled` - Enable/disable idle animation
+    /// * `interval` - Base time between eye movements in seconds
+    /// * `variation` - Random variation added to interval in seconds
+    /// * `x_range` - X-axis movement range as percentage (0-100), default 100
+    /// * `y_range` - Y-axis movement range as percentage (0-100), default 100
+    pub fn set_idle_mode(
+        &mut self,
+        enabled: bool,
+        interval: u64,
+        variation: u64,
+        x_range: u32,
+        y_range: u32,
+    ) {
         self.idle = enabled;
         self.idle_config.interval = interval;
         self.idle_config.variation = variation;
+        self.idle_config.x_range = x_range.min(100);
+        self.idle_config.y_range = y_range.min(100);
     }
 
     /// Enable or disable horizontal flicker (shaking)
@@ -724,8 +741,22 @@ impl RoboEyes {
     fn process_idle(&mut self) {
         if self.idle && self.current_time >= self.idle_timer {
             let mut rng = rand::thread_rng();
-            self.eye_l_x_next = rng.gen_range(0..=self.get_constraint_x());
-            self.eye_l_y_next = rng.gen_range(0..=self.get_constraint_y());
+
+            // Calculate range based on percentage (centered)
+            let max_x = self.get_constraint_x();
+            let max_y = self.get_constraint_y();
+            let x_range_pct = self.idle_config.x_range as f32 / 100.0;
+            let y_range_pct = self.idle_config.y_range as f32 / 100.0;
+
+            let x_range = (max_x as f32 * x_range_pct) as i32;
+            let y_range = (max_y as f32 * y_range_pct) as i32;
+
+            // Center the range within available space
+            let x_offset = (max_x - x_range) / 2;
+            let y_offset = (max_y - y_range) / 2;
+
+            self.eye_l_x_next = x_offset + rng.gen_range(0..=x_range);
+            self.eye_l_y_next = y_offset + rng.gen_range(0..=y_range);
             self.idle_timer = self.current_time
                 + self.idle_config.interval * 1000
                 + rng.gen_range(0..self.idle_config.variation) * 1000;
