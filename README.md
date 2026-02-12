@@ -2,7 +2,7 @@
 
 Rust 移植的 FluxGarage RoboEyes - 在 OLED 显示屏上绘制流畅动画的机器人眼睛。
 
-原版是 Arduino/Adafruit GFX 实现，现已移植到纯 Rust，支持通用图像生成。
+原版是 Arduino/Adafruit GFX 实现，现已移植到纯 Rust，支持通用图像生成和实时窗口渲染。
 
 ## 功能特性
 
@@ -48,7 +48,7 @@ img.save("happy_eyes.png")?;
 
 ```toml
 [dependencies]
-boteyes = { git = "https://github.com/yourusername/BotEyes" }
+boteyes = { git = "https://github.com/TOTHTOT/BotEyes" }
 ```
 
 或使用本地路径：
@@ -230,6 +230,34 @@ loop {
 }
 ```
 
+## 运行示例
+
+### 实时窗口演示
+
+```bash
+cargo run --example demo
+```
+
+打开一个实时窗口展示机器人眼睛动画，支持键盘控制：
+
+| 按键 | 功能 |
+|------|------|
+| 1-4 | 切换心情（Default/Tired/Angry/Happy） |
+| C | 切换独眼模式 |
+| S | 切换出汗动画 |
+| Space | 眨眼 |
+| ESC | 退出 |
+
+眼睛会自动随机环顾四周（空闲模式）。
+
+### 截图生成
+
+```bash
+cargo run --example screenshot
+```
+
+生成所有心情、位置和动画的截图，保存在 `output/` 目录中。
+
 ## 动画循环示例
 
 ```rust
@@ -255,13 +283,6 @@ fn main() {
 }
 ```
 
-## 运行示例
-
-```bash
-cargo run --example demo
-```
-
-这会生成所有心情、位置和动画的截图，保存在 `output/` 目录中。
 
 ## 配置
 
@@ -290,4 +311,4 @@ Default:    Tired:       Angry:       Happy:
 ## 致谢
 
 - Arduino/Adafruit GFX 原始实现：[FluxGarage RoboEyes](https://github.com/FluxGarage/RoboEyes)，作者 Dennis Hoelscher
-- Rust 移植：[Your Name]
+- Rust 移植：[Ahoo-Wang](https://github.com/TOTHTOT/BotEyes)

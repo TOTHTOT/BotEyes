@@ -217,8 +217,6 @@ impl RoboEyes {
         let default_border_radius = config.border_radius;
         let default_space = config.space_between;
 
-        let mut rng = rand::thread_rng();
-
         // Calculate initial position (centered)
         let eye_l_x = ((screen_width as i32)
             - default_width as i32
@@ -280,7 +278,7 @@ impl RoboEyes {
 
             idle: false,
             idle_config: IdleConfig::default(),
-            idle_timer: rng.gen_range(0..u64::MAX),
+            idle_timer: 0,
 
             h_flicker: false,
             h_flicker_amplitude: 2,
@@ -401,6 +399,16 @@ impl RoboEyes {
     /// Enable or disable sweat animation
     pub fn set_sweat(&mut self, enabled: bool) {
         self.sweat = enabled;
+    }
+
+    /// Check if cyclops mode is enabled
+    pub fn is_cyclops(&self) -> bool {
+        self.cyclops
+    }
+
+    /// Check if sweat animation is enabled
+    pub fn has_sweat(&self) -> bool {
+        self.sweat
     }
 
     // =====================================================================
@@ -668,7 +676,9 @@ impl RoboEyes {
             - self.space_between as i32
             - self.eye_r.width as i32
     }
-
+    fn get_constraint_y(&self) -> i32 {
+        (self.screen_height as i32) - self.eye_l.height as i32
+    }
     fn process_autoblinker(&mut self) {
         if self.autoblinker && self.current_time >= self.blink_timer {
             self.blink();
@@ -715,7 +725,7 @@ impl RoboEyes {
         if self.idle && self.current_time >= self.idle_timer {
             let mut rng = rand::thread_rng();
             self.eye_l_x_next = rng.gen_range(0..=self.get_constraint_x());
-            self.eye_l_y_next = rng.gen_range(0..=self.get_constraint_x());
+            self.eye_l_y_next = rng.gen_range(0..=self.get_constraint_y());
             self.idle_timer = self.current_time
                 + self.idle_config.interval * 1000
                 + rng.gen_range(0..self.idle_config.variation) * 1000;

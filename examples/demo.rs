@@ -1,127 +1,75 @@
-//! Example: BotEyes usage demonstration
+//! Example: BotEyes real-time demonstration
 //!
 //! ```cargo run --example demo```
 //!
-//! This renders robot eyes and saves screenshots to the output directory.
-//!
-//! Two APIs are available:
-//! - `draw_eyes()` - Creates a new image buffer (convenient but allocates each frame)
-//! - `draw_into()` - Modifies an existing buffer (efficient for animation loops)
+//! This opens a window and animates robot eyes in real-time.
+//! Press keys to change moods and modes.
 
-use boteyes::{Mood, Position, RoboEyes};
-use image::GrayImage;
-use std::fs;
+use boteyes::{Mood, RoboEyes};
+use minifb::{Key, KeyRepeat, Scale, Window, WindowOptions};
+use std::time::Duration;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Create output directory
-    fs::create_dir_all("output")?;
+const WIDTH: usize = 256;
+const HEIGHT: usize = 128;
 
-    // Create RoboEyes instance (128x64 OLED resolution)
-    let mut eyes = RoboEyes::new(128, 64);
-
-    // Create a reusable buffer (more efficient than creating new one each frame)
-    let mut buffer = GrayImage::new(128, 64);
-
-    // Animate eyes open first
+fn main() {
+    let mut eyes = RoboEyes::new(WIDTH as u32, HEIGHT as u32);
     eyes.set_mood(Mood::Default);
-    eyes.set_position(Position::Center);
     eyes.open();
-    for i in 0..20 {
-        eyes.draw_into(&mut buffer, i as u64 * 20);
+    eyes.set_idle_mode(true, 2, 4);
+
+    let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
+
+    let mut window = Window::new(
+        "BotEyes Demo - Press keys: 1=Default, 2=Tired, 3=Angry, 4=Happy, C=Cyclops, S=Sweat, SPACE=Blink, ESC=Quit",
+        WIDTH,
+        HEIGHT,
+        WindowOptions {
+            scale: Scale::X4,
+            ..WindowOptions::default()
+        },
+    )
+    .expect("Unable to open window");
+
+    let mut frame_count = 0;
+
+    while window.is_open() && !window.is_key_down(Key::Escape) {
+        // Handle keyboard input
+        for key in window.get_keys_pressed(KeyRepeat::No) {
+            match key {
+                Key::Key1 => eyes.set_mood(Mood::Default),
+                Key::Key2 => eyes.set_mood(Mood::Tired),
+                Key::Key3 => eyes.set_mood(Mood::Angry),
+                Key::Key4 => eyes.set_mood(Mood::Happy),
+                Key::C => eyes.set_cyclops(!eyes.is_cyclops()),
+                Key::S => eyes.set_sweat(!eyes.has_sweat()),
+                Key::Space => eyes.blink(),
+                _ => {}
+            }
+        }
+
+        let current_time = frame_count * 16; // ~60 FPS
+
+        // Draw frame and convert to buffer
+        let img = eyes.draw_eyes(current_time);
+        for (i, pixel) in img.pixels().enumerate() {
+            let gray = pixel.0[0];
+            let color = if gray > 128 {
+                0xFFFFFFFF // White
+            } else {
+                0xFF444444 // Dark gray background
+            };
+            buffer[i] = color;
+        }
+
+        // Update window
+        window
+            .update_with_buffer(&buffer, WIDTH, HEIGHT)
+            .expect("Failed to update buffer");
+
+        frame_count += 1;
+        std::thread::sleep(Duration::from_millis(16));
     }
 
-    // Default mode
-    eyes.set_mood(Mood::Default);
-    eyes.draw_into(&mut buffer, 1000);
-    buffer.save("output/default.png")?;
-    println!("Saved: output/default.png");
-
-    // Tired mode
-    eyes.set_mood(Mood::Tired);
-    eyes.draw_into(&mut buffer, 1000);
-    buffer.save("output/tired.png")?;
-    println!("Saved: output/tired.png");
-
-    // Angry mode
-    eyes.set_mood(Mood::Angry);
-    eyes.draw_into(&mut buffer, 1000);
-    buffer.save("output/angry.png")?;
-    println!("Saved: output/angry.png");
-
-    // Happy mode
-    eyes.set_mood(Mood::Happy);
-    eyes.draw_into(&mut buffer, 1000);
-    buffer.save("output/happy.png")?;
-    println!("Saved: output/happy.png");
-
-    // Cyclops mode
-    eyes.set_mood(Mood::Default);
-    eyes.set_cyclops(true);
-    eyes.draw_into(&mut buffer, 1000);
-    buffer.save("output/cyclops.png")?;
-    println!("Saved: output/cyclops.png");
-
-    // All positions
-    for pos in [
-        Position::North,
-        Position::NorthEast,
-        Position::East,
-        Position::SouthEast,
-        Position::South,
-        Position::SouthWest,
-        Position::West,
-        Position::NorthWest,
-        Position::Center,
-    ]
-    .iter()
-    {
-        eyes.set_cyclops(false);
-        eyes.set_mood(Mood::Default);
-        eyes.set_position(*pos);
-        eyes.draw_into(&mut buffer, 1000);
-        buffer.save(format!("output/position_{:?}.png", pos))?;
-        println!("Saved: output/position_{:?}.png", pos);
-    }
-
-    // Blink animation
-    eyes.set_mood(Mood::Default);
-    eyes.set_sweat(false);
-    eyes.set_cyclops(false);
-    eyes.set_position(Position::Center);
-    for i in 0..10 {
-        eyes.blink();
-        eyes.draw_into(&mut buffer, i as u64 * 50);
-        buffer.save(format!("output/blink_{}.png", i))?;
-        println!("Saved: output/blink_{}.png", i);
-    }
-
-    // Confused animation
-    eyes.anim_confused();
-    for i in 0..10 {
-        eyes.draw_into(&mut buffer, i as u64 * 50);
-        buffer.save(format!("output/confused_{}.png", i))?;
-        println!("Saved: output/confused_{}.png", i);
-    }
-
-    // Laugh animation
-    eyes.anim_laugh();
-    eyes.set_position(Position::Center);
-    for i in 0..10 {
-        eyes.draw_into(&mut buffer, i as u64 * 50);
-        buffer.save(format!("output/laugh_{}.png", i))?;
-        println!("Saved: output/laugh_{}.png", i);
-    }
-
-    // Sweat animation
-    eyes.set_sweat(true);
-    eyes.set_position(Position::Center);
-    for i in 0..20 {
-        eyes.draw_into(&mut buffer, i as u64 * 100);
-        buffer.save(format!("output/sweat_{}.png", i))?;
-        println!("Saved: output/sweat_{}.png", i);
-    }
-
-    println!("\nAll screenshots saved to output/");
-
-    Ok(())
+    println!("Demo closed.");
 }
