@@ -48,14 +48,14 @@ img.save("happy_eyes.png")?;
 
 ```toml
 [dependencies]
-boteyes = { git = "https://github.com/TOTHTOT/BotEyes" }
+BotEyes = { git = "https://github.com/TOTHTOT/BotEyes" }
 ```
 
 或使用本地路径：
 
 ```toml
 [dependencies]
-boteyes = { path = "path/to/BotEyes" }
+BotEyes = { path = "path/to/BotEyes" }
 ```
 
 ## 架构设计
