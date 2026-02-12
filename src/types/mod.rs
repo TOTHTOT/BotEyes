@@ -106,6 +106,76 @@ impl Default for IdleConfig {
     }
 }
 
+/// Configuration for RoboEyes instance
+///
+/// Contains all configurable default values for eye appearance.
+/// Use [`Default`] to get sensible defaults, or build a custom config.
+///
+/// # Example
+///
+/// ```rust
+/// use boteyes::RoboEyesConfig;
+///
+/// let config = RoboEyesConfig::default()
+///     .with_eye_width(50)
+///     .with_eye_height(50)
+///     .with_border_radius(12)
+///     .with_space_between(15);
+/// ```
+#[derive(Debug, Clone)]
+pub struct RoboEyesConfig {
+    /// Default eye width in pixels
+    pub eye_width: u32,
+    /// Default eye height in pixels
+    pub eye_height: u32,
+    /// Border radius for rounded corners
+    pub border_radius: u32,
+    /// Space between eyes
+    pub space_between: u32,
+}
+
+impl Default for RoboEyesConfig {
+    fn default() -> Self {
+        Self {
+            eye_width: 36,
+            eye_height: 36,
+            border_radius: 8,
+            space_between: 10,
+        }
+    }
+}
+
+impl RoboEyesConfig {
+    /// Create a new config with default values
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Set eye width
+    pub fn with_eye_width(mut self, width: u32) -> Self {
+        self.eye_width = width;
+        self
+    }
+
+    /// Set eye height
+    pub fn with_eye_height(mut self, height: u32) -> Self {
+        self.eye_height = height;
+        self
+    }
+
+    /// Set border radius
+    pub fn with_border_radius(mut self, radius: u32) -> Self {
+        self.border_radius = radius;
+        self
+    }
+
+    /// Set space between eyes
+    pub fn with_space_between(mut self, space: u32) -> Self {
+        self.space_between = space;
+        self
+    }
+}
+
 /// Screen constraint calculation helper
 pub struct ScreenConstraints {
     pub width: u32,

@@ -29,6 +29,7 @@ type Color = u8;
 ///
 /// The corner radius is automatically limited to half of the
 /// smaller dimension to prevent invalid shapes.
+#[allow(clippy::too_many_arguments)]
 pub fn draw_rounded_rect(
     img: &mut GrayImage,
     screen_width: u32,
@@ -113,6 +114,7 @@ fn is_in_rounded_corner(dx: i32, dy: i32, width: u32, height: u32, radius: u32) 
 /// * `x2, y2` - Second vertex
 /// * `x3, y3` - Third vertex
 /// * `color` - Fill color (0-255)
+#[allow(clippy::too_many_arguments)]
 pub fn draw_triangle(
     img: &mut GrayImage,
     screen_width: u32,

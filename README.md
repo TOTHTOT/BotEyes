@@ -18,8 +18,18 @@ Rust 移植的 FluxGarage RoboEyes - 在 OLED 显示屏上绘制流畅动画的�
 ```rust
 use boteyes::{RoboEyes, Mood};
 
-// 创建眼睛实例（128x64 OLED 分辨率）
+// 方式 1：使用默认配置（128x64 OLED，36x36 眼睛）
 let mut eyes = RoboEyes::new(128, 64);
+
+// 方式 2：自定义眼睛大小和间距
+use boteyes::RoboEyesConfig;
+let config = RoboEyesConfig::default()
+    .with_eye_width(50)       // 设置眼睛宽度（像素）
+    .with_eye_height(50)      // 设置眼睛高度（像素）
+    .with_border_radius(12)   // 设置圆角半径（像素）
+    .with_space_between(15);  // 设置眼睛间距（像素）
+
+let mut eyes = RoboEyes::new_with_config(128, 64, config);
 
 // 设置心情并睁开眼睛
 eyes.set_mood(Mood::Happy);
@@ -77,7 +87,7 @@ boteyes = { path = "path/to/BotEyes" }
 src/
 ├── lib.rs           # RoboEyes 主结构体和 API
 ├── types/
-│   └── mod.rs       # Mood, Position, EyeGeometry, 配置结构体
+│   └── mod.rs       # Mood, Position, EyeGeometry, RoboEyesConfig, 配置结构体
 ├── draw/
 │   └── mod.rs       # 绘图原语（圆角矩形、三角形）
 └── animation/
@@ -89,12 +99,28 @@ src/
 ### 创建实例
 
 ```rust
-// 标准 128x64 OLED 显示屏
+use boteyes::{RoboEyes, RoboEyesConfig};
+
+// 方式 1：使用默认配置（标准 128x64 OLED 显示屏）
 let eyes = RoboEyes::new(128, 64);
 
-// 自定义尺寸
-let eyes = RoboEyes::new(256, 128);
+// 方式 2：自定义眼睛尺寸和间距
+let config = RoboEyesConfig::default()
+    .with_eye_width(50)
+    .with_eye_height(50)
+    .with_border_radius(12)
+    .with_space_between(15);
+
+let eyes = RoboEyes::new_with_config(256, 128, config);
 ```
+
+**默认配置值：**
+| 参数 | 默认值 | 说明 |
+|------|--------|------|
+| `eye_width` | 36 | 眼睛宽度（像素） |
+| `eye_height` | 36 | 眼睛高度（像素） |
+| `border_radius` | 8 | 圆角半径（像素） |
+| `space_between` | 10 | 眼睛间距（像素） |
 
 ### 心情设置
 

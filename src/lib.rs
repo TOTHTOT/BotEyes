@@ -51,7 +51,9 @@ mod animation;
 mod draw;
 mod types;
 
-pub use types::{BlinkConfig, EyeGeometry, IdleConfig, Mood, Position, ScreenConstraints};
+pub use types::{
+    BlinkConfig, EyeGeometry, IdleConfig, Mood, Position, RoboEyesConfig, ScreenConstraints,
+};
 
 use animation::{SweatDrops, SweatPosition};
 use draw::{draw_rounded_rect, draw_triangle};
@@ -170,7 +172,7 @@ pub struct RoboEyes {
 }
 
 impl RoboEyes {
-    /// Create a new RoboEyes instance
+    /// Create a new RoboEyes instance with default configuration
     ///
     /// # Arguments
     ///
@@ -184,10 +186,36 @@ impl RoboEyes {
     /// let eyes = RoboEyes::new(128, 64);
     /// ```
     pub fn new(screen_width: u32, screen_height: u32) -> Self {
-        let default_width = 36;
-        let default_height = 36;
-        let default_border_radius = 8;
-        let default_space = 10;
+        Self::new_with_config(screen_width, screen_height, RoboEyesConfig::default())
+    }
+
+    /// Create a new RoboEyes instance with custom configuration
+    ///
+    /// # Arguments
+    ///
+    /// * `screen_width` - Display width in pixels
+    /// * `screen_height` - Display height in pixels
+    /// * `config` - Custom eye configuration (use [`RoboEyesConfig`] to customize)
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use boteyes::{RoboEyes, RoboEyesConfig};
+    ///
+    /// // Custom eye size and spacing
+    /// let config = RoboEyesConfig::default()
+    ///     .with_eye_width(50)
+    ///     .with_eye_height(50)
+    ///     .with_border_radius(12)
+    ///     .with_space_between(15);
+    ///
+    /// let eyes = RoboEyes::new_with_config(128, 64, config);
+    /// ```
+    pub fn new_with_config(screen_width: u32, screen_height: u32, config: RoboEyesConfig) -> Self {
+        let default_width = config.eye_width;
+        let default_height = config.eye_height;
+        let default_border_radius = config.border_radius;
+        let default_space = config.space_between;
 
         let mut rng = rand::thread_rng();
 
