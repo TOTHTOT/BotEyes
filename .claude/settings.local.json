@@ -14,7 +14,8 @@
       "Bash(cargo clean)",
       "Bash(cargo check)",
       "Bash(rustfmt:*)",
-      "Bash(cargo check:*)"
+      "Bash(cargo check:*)",
+      "Bash(curl -s \"https://minimax-algeng-chat-tts.oss-cn-wulanchabu.aliyuncs.com/ccv2%2F2026-02-23%2FMiniMax-M2.1%2F2018549330264199394%2Fc881e4bc39fa23ea5614a3647dbfcd1b2a01652fb749ec89a4fdfb0eeed4a8bb..png?Expires=1771931084&OSSAccessKeyId=LTAI5tGLnRTkBjLuYPjNcKQ8&Signature=mqXIUcZLHoosgJGOAZLr7dJonoU%3D\" -o /tmp/confuse.png)"
     ]
   }
 }

@@ -114,6 +114,12 @@ pub struct RoboEyes {
     eye_l_height_offset: u32,
     eye_r_height_offset: u32,
 
+    // Eye scale for confuse mood (one eye bigger than others)
+    eye_l_scale: f32,
+    eye_l_scale_next: f32,
+    eye_r_scale: f32,
+    eye_r_scale_next: f32,
+
     // Space between eyes
     space_between: u32,
     space_between_next: u32,
@@ -183,6 +189,7 @@ impl RoboEyes {
     ///
     /// ```rust
     /// // 128x64 OLED display
+    /// use boteyes::RoboEyes;
     /// let eyes = RoboEyes::new(128, 64);
     /// ```
     pub fn new(screen_width: u32, screen_height: u32) -> Self {
@@ -254,6 +261,11 @@ impl RoboEyes {
 
             eye_l_height_offset: 0,
             eye_r_height_offset: 0,
+
+            eye_l_scale: 1.0,
+            eye_l_scale_next: 1.0,
+            eye_r_scale: 1.0,
+            eye_r_scale_next: 1.0,
 
             space_between: default_space,
             space_between_next: default_space,
@@ -538,11 +550,12 @@ impl RoboEyes {
     /// # Example
     ///
     /// ```rust
+    /// use boteyes::RoboEyes;
     /// let mut eyes = RoboEyes::new(128, 64);
     /// let mut buffer = image::GrayImage::new(128, 64);
     ///
     /// loop {
-    ///     eyes.draw_into(&mut buffer, current_time);
+    ///     eyes.draw_into(&mut buffer, 1000);
     ///     // use buffer...
     /// }
     /// ```
@@ -596,27 +609,34 @@ impl RoboEyes {
         }
 
         // 3. Shape drawing
+        // Apply eye scale for Confuse mood
+        let l_w = (self.eye_l.width as f32 * self.eye_l_scale) as u32;
+        let l_h = (self.eye_l_height_current as f32 * self.eye_l_scale) as u32;
+        let l_off = ((l_w as i32) - (self.eye_l.width as i32)) / 2;
         draw_rounded_rect(
             img,
             self.screen_width,
             self.screen_height,
-            self.eye_l_x,
+            self.eye_l_x - l_off,
             self.eye_l_y,
-            self.eye_l.width,
-            self.eye_l_height_current,
+            l_w,
+            l_h,
             self.eye_l.border_radius,
             MAINCOLOR,
         );
 
         if !self.cyclops {
+            let r_w = (self.eye_r.width as f32 * self.eye_r_scale) as u32;
+            let r_h = (self.eye_r_height_current as f32 * self.eye_r_scale) as u32;
+            let r_off = ((r_w as i32) - (self.eye_r.width as i32)) / 2;
             draw_rounded_rect(
                 img,
                 self.screen_width,
                 self.screen_height,
-                self.eye_r_x,
+                self.eye_r_x - r_off,
                 self.eye_r_y,
-                self.eye_r.width,
-                self.eye_r_height_current,
+                r_w,
+                r_h,
                 self.eye_r.border_radius,
                 MAINCOLOR,
             );
@@ -792,21 +812,43 @@ impl RoboEyes {
             Mood::Tired => {
                 self.eyelids_tired_height_next = self.eye_l_height_default / 2;
                 self.eyelids_angry_height_next = 0;
+                self.eyelids_happy_bottom_offset_next = 0;
+                // Reset eye scales
+                self.eye_l_scale_next = 1.0;
+                self.eye_r_scale_next = 1.0;
             }
             Mood::Angry => {
                 self.eyelids_angry_height_next = self.eye_l_height_default / 2;
                 self.eyelids_tired_height_next = 0;
+                self.eyelids_happy_bottom_offset_next = 0;
+                self.eye_l_scale_next = 1.0;
+                self.eye_r_scale_next = 1.0;
             }
             Mood::Happy => {
                 self.eyelids_happy_bottom_offset_next = self.eye_l_height_default / 2;
+                self.eyelids_tired_height_next = 0;
+                self.eyelids_angry_height_next = 0;
+                self.eye_l_scale_next = 1.0;
+                self.eye_r_scale_next = 1.0;
+            }
+            Mood::Confuse => {
+                // One eye bigger, one smaller (skeptical look)
+                self.eyelids_tired_height_next = 0;
+                self.eyelids_angry_height_next = 0;
+                self.eyelids_happy_bottom_offset_next = 0;
+                self.eye_l_scale_next = 1.3; // Left eye bigger
+                self.eye_r_scale_next = 0.7; // Right eye smaller
             }
             Mood::Default => {
                 self.eyelids_tired_height_next = 0;
                 self.eyelids_angry_height_next = 0;
                 self.eyelids_happy_bottom_offset_next = 0;
+                self.eye_l_scale_next = 1.0;
+                self.eye_r_scale_next = 1.0;
             }
         }
 
+        // Tween eyelid values
         self.eyelids_tired_height =
             (self.eyelids_tired_height as f32 + self.eyelids_tired_height_next as f32) as u32 / 2;
         self.eyelids_angry_height =
@@ -815,6 +857,10 @@ impl RoboEyes {
             + self.eyelids_happy_bottom_offset_next as f32)
             as u32
             / 2;
+
+        // Tween eye scales for Confuse mood
+        self.eye_l_scale = (self.eye_l_scale + self.eye_l_scale_next) / 2.0;
+        self.eye_r_scale = (self.eye_r_scale + self.eye_r_scale_next) / 2.0;
     }
 
     fn draw_eyelids(&mut self, img: &mut GrayImage) {

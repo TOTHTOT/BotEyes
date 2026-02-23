@@ -9,12 +9,14 @@
 /// - `Tired`: Upper triangular eyelids partially covering eyes
 /// - `Angry`: Angled upper eyelids for angry expression
 /// - `Happy`: Lower rounded eyelid overlays for happy expression
+/// - `Confuse`: One eye bigger than the other (skeptical/suspicious look)
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Mood {
     Default,
     Tired,
     Angry,
     Happy,
+    Confuse,
 }
 
 /// Predefined eye positions (gaze directions)
