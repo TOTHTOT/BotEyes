@@ -6,7 +6,7 @@
 //! ## Features
 //!
 //! - **Eyes Rendering**: Draw left and right eyes with customizable size, position, and border radius
-//! - **Mood Expressions**: Default, Tired, Angry, and Happy moods
+//! - **Mood Expressions**: Default, Angry, Happy, Confuse, Sad, Surprise, Loading
 //! - **Eye Positions**: 8 predefined directions (N, NE, E, SE, S, SW, W, NW) + Center
 //! - **Animations**: Blink, Confused (horizontal shake), Laugh (vertical shake), Sweat drops
 //! - **Special Modes**: Cyclops (single eye), Curious (eyes grow when looking sideways)
@@ -646,7 +646,12 @@ impl RoboEyes {
         self.update_mood_transitions();
         self.draw_eyelids(img);
 
-        // 5. Sweat animation
+        // 5. Loading animation (blue flickering)
+        if self.mood == Mood::Loading {
+            self.draw_loading(img);
+        }
+
+        // 6. Sweat animation
         if self.sweat {
             self.draw_sweat(img);
         }
@@ -809,14 +814,6 @@ impl RoboEyes {
 
     fn update_mood_transitions(&mut self) {
         match self.mood {
-            Mood::Tired => {
-                self.eyelids_tired_height_next = self.eye_l_height_default / 2;
-                self.eyelids_angry_height_next = 0;
-                self.eyelids_happy_bottom_offset_next = 0;
-                // Reset eye scales
-                self.eye_l_scale_next = 1.0;
-                self.eye_r_scale_next = 1.0;
-            }
             Mood::Angry => {
                 self.eyelids_angry_height_next = self.eye_l_height_default / 2;
                 self.eyelids_tired_height_next = 0;
@@ -832,12 +829,39 @@ impl RoboEyes {
                 self.eye_r_scale_next = 1.0;
             }
             Mood::Confuse => {
-                // One eye bigger, one smaller (skeptical look)
                 self.eyelids_tired_height_next = 0;
                 self.eyelids_angry_height_next = 0;
                 self.eyelids_happy_bottom_offset_next = 0;
-                self.eye_l_scale_next = 1.3; // Left eye bigger
-                self.eye_r_scale_next = 0.7; // Right eye smaller
+                self.eye_l_scale_next = 1.3;
+                self.eye_r_scale_next = 0.7;
+            }
+            Mood::Sad => {
+                // Eyes half-closed and looking down
+                self.eyelids_tired_height_next = self.eye_l_height_default / 2;
+                self.eyelids_angry_height_next = 0;
+                self.eyelids_happy_bottom_offset_next = 0;
+                self.eye_l_scale_next = 1.0;
+                self.eye_r_scale_next = 1.0;
+                // Move eyes downward
+                let max_y = self.get_constraint_y();
+                self.eye_l_y_next = max_y;
+                self.eye_r_y_next = max_y;
+            }
+            Mood::Surprise => {
+                // Eyes wide open (enlarged)
+                self.eyelids_tired_height_next = 0;
+                self.eyelids_angry_height_next = 0;
+                self.eyelids_happy_bottom_offset_next = 0;
+                self.eye_l_scale_next = 1.3;
+                self.eye_r_scale_next = 1.3;
+            }
+            Mood::Loading => {
+                // Eyes normal, animation handled separately
+                self.eyelids_tired_height_next = 0;
+                self.eyelids_angry_height_next = 0;
+                self.eyelids_happy_bottom_offset_next = 0;
+                self.eye_l_scale_next = 1.0;
+                self.eye_r_scale_next = 1.0;
             }
             Mood::Default => {
                 self.eyelids_tired_height_next = 0;
@@ -864,8 +888,8 @@ impl RoboEyes {
     }
 
     fn draw_eyelids(&mut self, img: &mut GrayImage) {
-        // Tired eyelids
-        if self.mood == Mood::Tired {
+        // Sad/Sleepy eyelids
+        if self.mood == Mood::Sad {
             if !self.cyclops {
                 draw_triangle(
                     img,
@@ -1034,6 +1058,51 @@ impl RoboEyes {
                 h,
                 3,
                 MAINCOLOR,
+            );
+        }
+    }
+
+    fn draw_loading(&mut self, img: &mut GrayImage) {
+        // Blue flickering effect during loading
+        let cycle = (self.current_time / 200) % 4;
+        let color = match cycle {
+            0 => 255,
+            1 => 200,
+            2 => 100,
+            _ => 50,
+        };
+
+        // Draw loading indicator in center of each eye
+        let center_x_l = self.eye_l_x + self.eye_l.width as i32 / 2;
+        let center_y_l = self.eye_l_y + self.eye_l_height_current as i32 / 2;
+        let indicator_size = 4i32;
+
+        // Left eye loading
+        draw_rounded_rect(
+            img,
+            self.screen_width,
+            self.screen_height,
+            center_x_l - indicator_size / 2,
+            center_y_l - indicator_size / 2,
+            indicator_size as u32,
+            indicator_size as u32,
+            2,
+            color,
+        );
+
+        if !self.cyclops {
+            let center_x_r = self.eye_r_x + self.eye_r.width as i32 / 2;
+            let center_y_r = self.eye_r_y + self.eye_r_height_current as i32 / 2;
+            draw_rounded_rect(
+                img,
+                self.screen_width,
+                self.screen_height,
+                center_x_r - indicator_size / 2,
+                center_y_r - indicator_size / 2,
+                indicator_size as u32,
+                indicator_size as u32,
+                2,
+                color,
             );
         }
     }

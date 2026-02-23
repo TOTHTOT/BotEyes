@@ -4,19 +4,29 @@
 
 /// Mood types for eye expressions
 ///
-/// Determines how the eyelids are drawn:
 /// - `Default`: Normal open eyes
-/// - `Tired`: Upper triangular eyelids partially covering eyes
-/// - `Angry`: Angled upper eyelids for angry expression
-/// - `Happy`: Lower rounded eyelid overlays for happy expression
-/// - `Confuse`: One eye bigger than the other (skeptical/suspicious look)
+/// - `Angry`: Eyes angled inward in V shape
+/// - `Happy`: Eyes curved upward
+/// - `Confuse`: One eye bigger than the other
+/// - `Sad`: Eyes half-closed and looking down (sleepy + sad)
+/// - `Surprise`: Eyes wide open (enlarged)
+/// - `Loading`: Rotating or blue light flickering
+///
+/// Trigger scenarios:
+/// - Happy: Heard owner's name, received praise
+/// - Sad: Criticized, low battery, task failed, power saving, night mode
+/// - Angry: Pushed, repeated command not understood
+/// - Surprise: Found new object, loud noise
+/// - Loading: 0.5B model reasoning
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Mood {
     Default,
-    Tired,
     Angry,
     Happy,
     Confuse,
+    Sad,
+    Surprise,
+    Loading,
 }
 
 /// Predefined eye positions (gaze directions)

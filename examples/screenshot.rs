@@ -33,11 +33,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     buffer.save("output/default.png")?;
     println!("Saved: output/default.png");
 
-    // Tired mode
-    eyes.set_mood(Mood::Tired);
+    // Sad mode (includes sleepy half-closed effect + looking down)
+    eyes.set_mood(Mood::Sad);
     eyes.draw_into(&mut buffer, 1000);
-    buffer.save("output/tired.png")?;
-    println!("Saved: output/tired.png");
+    buffer.save("output/sad.png")?;
+    println!("Saved: output/sad.png");
+
+    // Surprise mode
+    eyes.set_mood(Mood::Surprise);
+    eyes.draw_into(&mut buffer, 1000);
+    buffer.save("output/surprise.png")?;
+    println!("Saved: output/surprise.png");
+
+    // Loading mode
+    eyes.set_mood(Mood::Loading);
+    for i in 0..5 {
+        eyes.draw_into(&mut buffer, i as u64 * 200);
+        buffer.save(format!("output/loading_{}.png", i))?;
+        println!("Saved: output/loading_{}.png", i);
+    }
 
     // Angry mode
     eyes.set_mood(Mood::Angry);

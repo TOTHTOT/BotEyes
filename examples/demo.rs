@@ -22,7 +22,7 @@ fn main() {
     let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
 
     let mut window = Window::new(
-        "BotEyes Demo - Press keys: 1=Default, 2=Tired, 3=Angry, 4=Happy, 5=Confuse, C=Cyclops, S=Sweat, SPACE=Blink, ESC=Quit",
+        "BotEyes Demo - Press keys: 1=Default, 2=Sad, 3=Angry, 4=Happy, 5=Confuse, 6=Surprise, 7=Loading, C=Cyclops, S=Sweat, SPACE=Blink, ESC=Quit",
         WIDTH,
         HEIGHT,
         WindowOptions {
@@ -39,10 +39,12 @@ fn main() {
         for key in window.get_keys_pressed(KeyRepeat::No) {
             match key {
                 Key::Key1 => eyes.set_mood(Mood::Default),
-                Key::Key2 => eyes.set_mood(Mood::Tired),
+                Key::Key2 => eyes.set_mood(Mood::Sad),
                 Key::Key3 => eyes.set_mood(Mood::Angry),
                 Key::Key4 => eyes.set_mood(Mood::Happy),
                 Key::Key5 => eyes.set_mood(Mood::Confuse),
+                Key::Key6 => eyes.set_mood(Mood::Surprise),
+                Key::Key7 => eyes.set_mood(Mood::Loading),
                 Key::C => eyes.set_cyclops(!eyes.is_cyclops()),
                 Key::S => eyes.set_sweat(!eyes.has_sweat()),
                 Key::Space => eyes.blink(),
