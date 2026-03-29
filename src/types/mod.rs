@@ -18,8 +18,9 @@
 /// - Angry: Pushed, repeated command not understood
 /// - Surprise: Found new object, loud noise
 /// - Loading: 0.5B model reasoning
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub enum Mood {
+    #[default]
     Default,
     Angry,
     Happy,
